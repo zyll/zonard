@@ -49,40 +49,31 @@
 
 .zonehandle-handle.dir-n {
   top: -5px;
-  left: 50%;
   margin: 0 0 0 -5px;
 }
 
 .zonehandle-handle.dir-s {
   bottom: -5px;
-  left: 50%;
   margin: 0 0 0 -5px;
 }
 
 .zonehandle-handle.dir-e {
-  top: 50%;
-  right: -5px;
   margin: -5px 0 0 0;
 }
 
 .zonehandle-handle.dir-w {
-  top: 50%;
   left: -5px;
   margin: -5px 0 0 0;
 }
 
 .zonehandle-handle.dir-ne {
   top: -5px;
-  right: -5px;
 }
 
 .zonehandle-handle.dir-se {
-  bottom: -5px;
-  right: -5px;
 }
 
 .zonehandle-handle.dir-sw {
-  bottom: -5px;
   left: -5px;
 }
 

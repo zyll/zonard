@@ -8,8 +8,8 @@ class @ZoneHandler
     @container = document.createElement('span')
     @container.className = 'zonehandle-container'
     for style in 'height width height display position top left right'.split ' '
-      @container.style[style] = (elStyle[style] || @el[style])?.replace('static', 'relative')
-
+      @container.style[style] = (elStyle[style] || @el[style])
+    @container.style.position = 'relative'
     # add a border pane to the container
     @pane = document.createElement('span')
     @pane.style.height = elStyle.height
@@ -27,14 +27,25 @@ class @ZoneHandler
     for b in 'n ne e se s sw w nw'.split(' ')
       i = document.createElement 'span'
       i.className = "zonehandle-handle dir-#{b}"
-      @pane.appendChild i
+      if b in ['n', 's']
+        i.style.left = @el.getBoundingClientRect().width / 2 + 'px'
+      if b in ['e', 'w']
+        i.style.top = @el.getBoundingClientRect().height / 2 + 'px'
+      if b in ['ne', 'e', 'se']
+        i.style.left = @el.getBoundingClientRect().width - 5 + 'px'
+      if b in ['se', 's', 'sw']
+        i.style.top = @el.getBoundingClientRect().height - 5 + 'px'
       @handles.push i
+      @pane.appendChild i
 
     # repack element inside the container
     parent = @el.parentNode
     parent.replaceChild @container, @el
-    @container.appendChild @el
+    #@el.style.position = 'absolute'
+    @el.style.top = 0
+    @el.style.left = 0
     @container.appendChild @pane
+    @container.appendChild @el
 
     @draggiffy()
     
