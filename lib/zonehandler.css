@@ -1,0 +1,92 @@
+.zonehandle-main {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.zonehandle-border-s {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  background-color: red;
+  height: 2px;
+  width: 100%;
+}
+
+.zonehandle-border-n {
+  position: absolute;
+  top: -1px;
+  left: 0px;
+  background-color: red;
+  width: 100%;
+  height: 2px;
+}
+
+.zonehandle-border-e {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background-color: red;
+  width: 2px;
+  height: 100%;
+}
+
+.zonehandle-border-w {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  background-color: red;
+  width: 2px;
+  height: 100%;
+}
+
+.zonehandle-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: yellow;
+}
+
+.zonehandle-handle.dir-n {
+  top: -5px;
+  left: 50%;
+  margin: 0 0 0 -5px;
+}
+
+.zonehandle-handle.dir-s {
+  bottom: -5px;
+  left: 50%;
+  margin: 0 0 0 -5px;
+}
+
+.zonehandle-handle.dir-e {
+  top: 50%;
+  right: -5px;
+  margin: -5px 0 0 0;
+}
+
+.zonehandle-handle.dir-w {
+  top: 50%;
+  left: -5px;
+  margin: -5px 0 0 0;
+}
+
+.zonehandle-handle.dir-ne {
+  top: -5px;
+  right: -5px;
+}
+
+.zonehandle-handle.dir-se {
+  bottom: -5px;
+  right: -5px;
+}
+
+.zonehandle-handle.dir-sw {
+  bottom: -5px;
+  left: -5px;
+}
+
+.zonehandle-handle.dir-nw {
+  top: -5px;
+  left: -5px;
+}

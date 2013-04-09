@@ -1,0 +1,7 @@
+{
+  "name": "zone-handler",
+  "version": "0.0.0",
+  "dependencies": {
+    "draggabilly": "~1.0.1"
+  }
+}
