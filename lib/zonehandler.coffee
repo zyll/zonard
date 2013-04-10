@@ -16,14 +16,14 @@ class @ZoneHandler
     @pane.style.width = elStyle.width
     @pane.className = 'zonehandle-main'
     # borders
-    @borders = []
+    @borders = {}
     for b in 'nesw'
       i = document.createElement 'span'
       i.className = "zonehandle-border-#{b}"
       @pane.appendChild i
-      @borders.push i
+      @borders[b] = i
     # handles
-    @handles = []
+    @handles = {}
     for b in 'n ne e se s sw w nw'.split(' ')
       i = document.createElement 'span'
       i.className = "zonehandle-handle dir-#{b}"
@@ -35,7 +35,7 @@ class @ZoneHandler
         i.style.left = @el.getBoundingClientRect().width - 5 + 'px'
       if b in ['se', 's', 'sw']
         i.style.top = @el.getBoundingClientRect().height - 5 + 'px'
-      @handles.push i
+      @handles[b] = i
       @pane.appendChild i
 
     # repack element inside the container
@@ -50,11 +50,18 @@ class @ZoneHandler
     @draggiffy()
     
   draggiffy: ->
-    for handle in @handles
-      draggie = new Draggabilly handle, containment: document.body
-      draggie.on 'dragStart', (handle, event, pointer)-> console.log 'start', handle, event, pointer
-      draggie.on 'dragMove', (handle, event, pointer)-> console.log 'move', handle, event, pointer
-      draggie.on 'dragEnd', (handle, event, pointer)-> console.log 'end', handle, event, pointer
+    re = /dir\-([nsew]{1,2})/
+    for i, handle of @handles
+      draggie = new Draggabilly handle
+      draggie.on 'dragStart', (handle, event, pointer)->
+      draggie.on 'dragMove', (handle, event, pointer)=>
+        dir = (re.exec handle.element.className)[1]
+        if /n/.test dir
+          @handles.ne.style.top = handle.position.y + 'px' unless dir is 'ne'
+          @handles.n.style.top = handle.position.y + 'px' unless dir is 'n'
+          @handles.nw.style.top = handle.position.y + 'px' unless dir is 'nw'
+          @borders.n.style.top = handle.position.y + 'px'
+      draggie.on 'dragEnd', (handle, event, pointer)->
 
     for border in @borders
       draggie = new Draggabilly border, containment: document.body
