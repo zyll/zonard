@@ -11,32 +11,7 @@ class @ZoneHandler
       @container.style[style] = (elStyle[style] || @el[style])
     @container.style.position = 'relative'
     # add a border pane to the container
-    @pane = document.createElement('span')
-    @pane.style.height = elStyle.height
-    @pane.style.width = elStyle.width
-    @pane.className = 'zonehandle-main'
-    # borders
-    @borders = {}
-    for b in 'nesw'
-      i = document.createElement 'span'
-      i.className = "zonehandle-border-#{b}"
-      @pane.appendChild i
-      @borders[b] = i
-    # handles
-    @handles = {}
-    for b in 'n ne e se s sw w nw'.split(' ')
-      i = document.createElement 'span'
-      i.className = "zonehandle-handle dir-#{b}"
-      if b in ['n', 's']
-        i.style.left = @el.getBoundingClientRect().width / 2 + 'px'
-      if b in ['e', 'w']
-        i.style.top = @el.getBoundingClientRect().height / 2 + 'px'
-      if b in ['ne', 'e', 'se']
-        i.style.left = @el.getBoundingClientRect().width - 5 + 'px'
-      if b in ['se', 's', 'sw']
-        i.style.top = @el.getBoundingClientRect().height - 5 + 'px'
-      @handles[b] = i
-      @pane.appendChild i
+    @pane = new Pane @el.getBoundingClientRect()
 
     # repack element inside the container
     parent = @el.parentNode
@@ -44,24 +19,78 @@ class @ZoneHandler
     #@el.style.position = 'absolute'
     @el.style.top = 0
     @el.style.left = 0
-    @container.appendChild @pane
+    @container.appendChild @pane.el
     @container.appendChild @el
-
-    @draggiffy()
+    @pane.draggiffy()
     
-  draggiffy: ->
-    re = /dir\-([nsew]{1,2})/
-    for i, handle of @handles
-      draggie = new Draggabilly handle
-      draggie.on 'dragStart', (handle, event, pointer)->
-      draggie.on 'dragMove', (handle, event, pointer)=>
-        dir = (re.exec handle.element.className)[1]
-        if /n/.test dir
-          @handles.ne.style.top = handle.position.y + 'px' unless dir is 'ne'
-          @handles.n.style.top = handle.position.y + 'px' unless dir is 'n'
-          @handles.nw.style.top = handle.position.y + 'px' unless dir is 'nw'
-          @borders.n.style.top = handle.position.y + 'px'
-      draggie.on 'dragEnd', (handle, event, pointer)->
+class Pane
+  cardinals: 'n ne e se s sw w nw'.split(' ')
+  constructor: (@box)->
+    @el = document.createElement('span')
+    @el.style.height = @box.height
+    @el.style.width = @box.width
+    @el.className = 'zonehandle-main'
 
-    for border in @borders
-      draggie = new Draggabilly border, containment: document.body
+    # borders
+    @borders = {}
+    for dir in 'nesw'
+      b = new Border dir, @box
+      @borders[dir] = b
+      @el.appendChild b.el
+      
+    # handles
+    @handles = {}
+    for dir in @cardinals
+      h = new Handle dir, @box
+      @handles[dir] = h
+      @el.appendChild h.el
+
+  draggiffy: ->
+    for i, handle of @handles
+      draggie = new Draggabilly handle.el
+      draggie.on 'dragStart', (handle, event, pointer)->
+      draggie.on 'dragMove', @onMoveHandle
+
+  onMoveHandle: (drag, event, pointer) =>
+    re = /dir\-([nsew]{1,2})/
+    dir = (re.exec drag.element.className)[1]
+    for h in @cardinals when h isnt dir
+      com = (dir.match ///[#{h}]///)?[0]
+      if com?.length
+        if com in ['w', 'e']
+          @handles[h].el.style.left = drag.position.x + 'px'
+        if com in ['s', 'n']
+          @handles[h].el.style.top = drag.position.y + 'px'
+    for b in dir
+      if b in ['w', 'e']
+        @borders[b].el.style.left = drag.position.x + 'px'
+      if com in ['s', 'n']
+        @borders[b].el.style.top = drag.position.y + 'px'
+
+class Border
+  constructor: (@dir, @box)->
+    @el = document.createElement 'span'
+    @el.className = "zonehandle-border-#{@dir}"
+    if @dir in ['n', 's']
+      @el.style.width = @box.width + 'px'
+      @el.style.height = '2px'
+    if @dir in ['e', 'w']
+      @el.style.height = @box.height + 'px'
+      @el.style.width = '2px'
+    if @dir is 'e'
+      @el.style.left = @box.width + 'px'
+    if @dir is 's'
+      @el.style.top = @box.height + 'px'
+
+class Handle
+  constructor: (@dir, @box)->
+    @el = document.createElement 'span'
+    @el.className = "zonehandle-handle dir-#{@dir}"
+    if @dir in ['n', 's']
+      @el.style.left = @box.width / 2 + 'px'
+    if @dir in ['e', 'w']
+      @el.style.top = @box.height / 2 + 'px'
+    if @dir in ['ne', 'e', 'se']
+      @el.style.left = @box.width - 5 + 'px'
+    if dir in ['se', 's', 'sw']
+      @el.style.top = @box.height - 5 + 'px'
