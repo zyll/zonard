@@ -64,7 +64,7 @@ class Pane
     for b in dir
       if b in ['w', 'e']
         @borders[b].el.style.left = drag.position.x + 'px'
-      if com in ['s', 'n']
+      if b in ['s', 'n']
         @borders[b].el.style.top = drag.position.y + 'px'
 
 class Border
