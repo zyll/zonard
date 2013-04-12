@@ -54,6 +54,8 @@ class Pane
   onMoveHandle: (drag, event, pointer) =>
     re = /dir\-([nsew]{1,2})/
     dir = (re.exec drag.element.className)[1]
+
+    # sync sibblings handler
     for h in @cardinals when h isnt dir
       com = (dir.match ///[#{h}]///)?[0]
       if com?.length
@@ -61,11 +63,16 @@ class Pane
           @handles[h].el.style.left = drag.position.x + 'px'
         if com in ['s', 'n']
           @handles[h].el.style.top = drag.position.y + 'px'
+
+    # sync borders position
     for b in dir
       if b in ['w', 'e']
         @borders[b].el.style.left = drag.position.x + 'px'
       if b in ['s', 'n']
         @borders[b].el.style.top = drag.position.y + 'px'
+
+    # sync borders size
+
 
 class Border
   constructor: (@dir, @box)->
