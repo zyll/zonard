@@ -25,7 +25,12 @@ class @ZoneHandler
     
 class Pane
   cardinals: 'n ne e se s sw w nw'.split(' ')
-  constructor: (@box)->
+  constructor: (box)->
+    @box =
+      width: box.width
+      height: box.height
+      top: 0
+      left: 0
     @el = document.createElement('span')
     @el.style.height = @box.height
     @el.style.width = @box.width
@@ -64,30 +69,52 @@ class Pane
         if com in ['s', 'n']
           @handles[h].el.style.top = drag.position.y + 'px'
 
-    # sync borders position
+    # sync borders positions
     for b in dir
-      if b in ['w', 'e']
-        @borders[b].el.style.left = drag.position.x + 'px'
-      if b in ['s', 'n']
-        @borders[b].el.style.top = drag.position.y + 'px'
+      if b is 'w'
+        @box.left = drag.position.x
+      if b is 'e'
+        @box.width = drag.position.x
+      if b is 'n'
+        @box.top = drag.position.y
+      if b is 's'
+        @box.height =  drag.position.y
 
-    # sync borders size
+    border.fitTo @box for dir, border of @borders
 
+    #  if b in ['w', 'e']
+    #    @borders[b].el.style.left = drag.position.x + 'px'
+    #  if b is 'w'
+    #    @box.left = drag.position.x
+    #  if b is 'e'
+    #    @box.width = @box.left - drag.position.x
+    #  
+    #  if b in ['s', 'n']
+    #    @borders[b].el.style.top = drag.position.y + 'px'
+    #  if b is 'n'
+    #    @box.top = drag.position.y
 
 class Border
   constructor: (@dir, @box)->
     @el = document.createElement 'span'
     @el.className = "zonehandle-border-#{@dir}"
+    @fitTo @box
+
+  fitTo: (box)->
     if @dir in ['n', 's']
-      @el.style.width = @box.width + 'px'
+      @el.style.width = box.width + 'px'
       @el.style.height = '2px'
     if @dir in ['e', 'w']
-      @el.style.height = @box.height + 'px'
+      @el.style.height = box.height + 'px'
       @el.style.width = '2px'
+    if @dir is 'n'
+      @el.style.top = box.top + 'px'
     if @dir is 'e'
-      @el.style.left = @box.width + 'px'
+      @el.style.left = box.width + 'px'
+    if @dir is 'w'
+      @el.style.left = box.left + 'px'
     if @dir is 's'
-      @el.style.top = @box.height + 'px'
+      @el.style.top = box.height + 'px'
 
 class Handle
   constructor: (@dir, @box)->
