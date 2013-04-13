@@ -1,6 +1,8 @@
+# require eventEmitter
+# require draggabilly
+
 # Add zone limiter ux and reporting capacity to an el.
 class @ZoneHandler
-
   constructor: (@el)->
     elStyle = window.getComputedStyle @el
 
@@ -23,17 +25,17 @@ class @ZoneHandler
     @container.appendChild @pane.el
     @pane.draggiffy()
     
-class Pane
+class Pane extends EventEmitter
   cardinals: 'n ne e se s sw w nw'.split(' ')
   constructor: (box)->
     @box =
-      width: box.width
-      height: box.height
-      top: 0
-      left: 0
+      x1: 0
+      y1: 0
+      x2: box.width
+      y2: box.height
     @el = document.createElement('span')
-    @el.style.height = @box.height
-    @el.style.width = @box.width
+    @el.style.height = @box.y2
+    @el.style.width = @box.x2
     @el.className = 'zonehandle-main'
 
     # borders
@@ -69,30 +71,23 @@ class Pane
         if com in ['s', 'n']
           @handles[h].el.style.top = drag.position.y + 'px'
 
-    # sync borders positions
+    # sync bounding box positions
     for b in dir
       if b is 'w'
-        @box.left = drag.position.x
+        @box.x1 = drag.position.x
       if b is 'e'
-        @box.width = drag.position.x
+        @box.x2 = drag.position.x
       if b is 'n'
-        @box.top = drag.position.y
+        @box.y1 = drag.position.y
       if b is 's'
-        @box.height =  drag.position.y
+        @box.y2 =  drag.position.y
 
+    # sync borders positions
     border.fitTo @box for dir, border of @borders
 
-    #  if b in ['w', 'e']
-    #    @borders[b].el.style.left = drag.position.x + 'px'
-    #  if b is 'w'
-    #    @box.left = drag.position.x
-    #  if b is 'e'
-    #    @box.width = @box.left - drag.position.x
-    #  
-    #  if b in ['s', 'n']
-    #    @borders[b].el.style.top = drag.position.y + 'px'
-    #  if b is 'n'
-    #    @box.top = drag.position.y
+    # notice the change
+    @emit 'change', @box
+
 
 class Border
   constructor: (@dir, @box)->
@@ -102,29 +97,31 @@ class Border
 
   fitTo: (box)->
     if @dir in ['n', 's']
-      @el.style.width = box.width + 'px'
+      @el.style.left = box.x1 + 'px'
+      @el.style.width = box.x2 - box.x1 + 'px'
       @el.style.height = '2px'
     if @dir in ['e', 'w']
-      @el.style.height = box.height + 'px'
+      @el.style.top = box.y1 + 'px'
+      @el.style.height = box.y2 - box.y1 + 'px'
       @el.style.width = '2px'
     if @dir is 'n'
-      @el.style.top = box.top + 'px'
+      @el.style.top = box.y1 + 'px'
     if @dir is 'e'
-      @el.style.left = box.width + 'px'
+      @el.style.left = box.x2 + 'px'
     if @dir is 'w'
-      @el.style.left = box.left + 'px'
+      @el.style.left = box.x1 + 'px'
     if @dir is 's'
-      @el.style.top = box.height + 'px'
+      @el.style.top = box.y2 + 'px'
 
 class Handle
   constructor: (@dir, @box)->
     @el = document.createElement 'span'
     @el.className = "zonehandle-handle dir-#{@dir}"
     if @dir in ['n', 's']
-      @el.style.left = @box.width / 2 + 'px'
+      @el.style.left = @box.x2 / 2 + 'px'
     if @dir in ['e', 'w']
-      @el.style.top = @box.height / 2 + 'px'
+      @el.style.top = @box.y2 / 2 + 'px'
     if @dir in ['ne', 'e', 'se']
-      @el.style.left = @box.width - 5 + 'px'
+      @el.style.left = @box.x2 - 5 + 'px'
     if dir in ['se', 's', 'sw']
-      @el.style.top = @box.height - 5 + 'px'
+      @el.style.top = @box.y2 - 5 + 'px'
