@@ -28,29 +28,31 @@ class @ZoneHandler
 class Pane extends EventEmitter
   cardinals: 'n ne e se s sw w nw'.split(' ')
   constructor: (box)->
-    @box =
-      x1: 0
-      y1: 0
-      x2: box.width
-      y2: box.height
     @el = document.createElement('span')
-    @el.style.height = @box.y2
-    @el.style.width = @box.x2
     @el.className = 'zonehandle-main'
 
     # borders
     @borders = {}
     for dir in 'nesw'
-      b = new Border dir, @box
+      b = new Border dir
       @borders[dir] = b
       @el.appendChild b.el
       
     # handles
     @handles = {}
     for dir in @cardinals
-      h = new Handle dir, @box
+      h = new Handle dir
       @handles[dir] = h
       @el.appendChild h.el
+
+    @draw
+      x1: 0
+      y1: 0
+      x2: box.width
+      y2: box.height
+    
+    @el.style.height = box.y2
+    @el.style.width = box.x2
 
   draggiffy: ->
     for i, handle of @handles
@@ -58,7 +60,7 @@ class Pane extends EventEmitter
       draggie.on 'dragStart', (handle, event, pointer)->
       draggie.on 'dragMove', @onMoveHandle
 
-  onMoveHandle: (drag, event, pointer) =>
+  onMoveHandle: (drag) =>
     re = /dir\-([nsew]{1,2})/
     dir = (re.exec drag.element.className)[1]
 
@@ -88,12 +90,14 @@ class Pane extends EventEmitter
     # notice the change
     @emit 'change', @box
 
+  draw: (@box) =>
+    border.fitTo @box for dir, border of @borders
+    handle.fitTo @box for dir, handle of @handles
 
 class Border
-  constructor: (@dir, @box)->
+  constructor: (@dir)->
     @el = document.createElement 'span'
     @el.className = "zonehandle-border-#{@dir}"
-    @fitTo @box
 
   fitTo: (box)->
     if @dir in ['n', 's']
@@ -114,14 +118,16 @@ class Border
       @el.style.top = box.y2 + 'px'
 
 class Handle
-  constructor: (@dir, @box)->
+  constructor: (@dir)->
     @el = document.createElement 'span'
     @el.className = "zonehandle-handle dir-#{@dir}"
+
+  fitTo: (box)->
     if @dir in ['n', 's']
-      @el.style.left = @box.x2 / 2 + 'px'
+      @el.style.left = box.x2 / 2 + 'px'
     if @dir in ['e', 'w']
-      @el.style.top = @box.y2 / 2 + 'px'
+      @el.style.top = box.y2 / 2 + 'px'
     if @dir in ['ne', 'e', 'se']
-      @el.style.left = @box.x2 - 5 + 'px'
-    if dir in ['se', 's', 'sw']
-      @el.style.top = @box.y2 - 5 + 'px'
+      @el.style.left = box.x2 - 5 + 'px'
+    if @dir in ['se', 's', 'sw']
+      @el.style.top = box.y2 - 5 + 'px'

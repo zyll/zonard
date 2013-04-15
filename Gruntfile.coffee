@@ -18,13 +18,14 @@ module.exports = (grunt)->
           'example/resize.js': 'example/resize.coffee'
           'example/canvas/crop_canvas.js': 'example/canvas/crop_canvas.coffee'
           'example/canvas/canvas.js': 'example/canvas/canvas.coffee'
+          'example/rotate.js': 'example/rotate.coffee'
     watch:
       dist:
         files:
           'lib/zonehandler.coffee'
         tasks: ['coffee:dist']
       example:
-        files: ['example/image.coffee','example/crop.coffee', 'example/resize.coffee', 'example/canvas/crop_canvas.coffee', 'example/canvas/canvas.coffee']
+        files: ['example/**/*.coffee']
         tasks: ['coffee:example']
 
   grunt.loadNpmTasks 'grunt-contrib-watch'
