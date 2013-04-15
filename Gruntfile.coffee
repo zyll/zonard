@@ -13,15 +13,16 @@ module.exports = (grunt)->
           'dist/zonehandler.js': 'lib/zonehandler.coffee'
       example:
         files:
-          'example/image.js': 'example/image.coffee',
+          'example/image.js': 'example/image.coffee'
           'example/crop.js': 'example/crop.coffee'
+          'example/resize.js': 'example/resize.coffee'
     watch:
       dist:
         files:
           'lib/zonehandler.coffee'
         tasks: ['coffee:dist']
       example:
-        files: ['example/image.coffee','example/crop.coffee']
+        files: ['example/image.coffee', 'example/crop.coffee', 'example/resize.coffee']
         tasks: ['coffee:example']
 
   grunt.loadNpmTasks 'grunt-contrib-watch'
