@@ -9,14 +9,9 @@ class @ZoneHandler
     # prepare container with an el styled copy
     @container = document.createElement('span')
     @container.className = 'zonehandle-container'
-    # subcontainer that will hold the content
-    @content = document.createElement('span')
-    @content.className = 'content-subcontainer'
     for style in 'height width height display position top left right'.split ' '
       @container.style[style] = (elStyle[style] || @el[style])
-      @content.style[style] = (elStyle[style] || @el[style])
     @container.style.position = 'relative'
-    @content.style.position = 'relative'
     # add a border pane to the container
     @pane = new Pane @el.getBoundingClientRect()
 
@@ -26,8 +21,7 @@ class @ZoneHandler
     #@el.style.position = 'absolute'
     @el.style.top = 0
     @el.style.left = 0
-    @container.appendChild @content
-    @content.appendChild @el
+    @container.appendChild @el
     @container.appendChild @pane.el
     @pane.draggiffy()
     
