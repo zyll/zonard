@@ -15,6 +15,7 @@ class Crop extends EventEmitter
   constructor: (@el, @cv)->
     # el will hold the target content we want to crop
     @zh = new ZoneHandler(@cv.el)
+    @zh.focus()
     @el = el
     elStyle = window.getComputedStyle @el
 

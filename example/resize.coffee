@@ -9,6 +9,7 @@ class Resize
   constructor: (@el)->
     elStyle = window.getComputedStyle @el
     @zh = new ZoneHandler el
+    @zh.focus()
 
     #listen for the events emitted by zonehandler.pane
     @zh.pane.on('change', @draw)

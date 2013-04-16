@@ -14,6 +14,7 @@ class Rotate
   constructor: (@el)->
     elStyle = window.getComputedStyle @el
     @zh = new ZoneHandler @el
+    @zh.focus()
     @rotate = 0
     
     # settings transform target once

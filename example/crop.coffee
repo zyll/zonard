@@ -9,6 +9,7 @@ class Crop extends EventEmitter
   constructor: (@el)->
     elStyle = window.getComputedStyle @el
     @zh = new ZoneHandler el
+    @zh.focus()
 
     # we relocate the el in a subcontainer to facilitate
     # the manipulation

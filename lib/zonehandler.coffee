@@ -18,12 +18,20 @@ class @ZoneHandler
     # repack element inside the container
     parent = @el.parentNode
     parent.replaceChild @container, @el
-    #@el.style.position = 'absolute'
     @el.style.top = 0
     @el.style.left = 0
     @container.appendChild @el
-    @container.appendChild @pane.el
-    @pane.draggiffy()
+
+  focus: (toggle=on)->
+    return if @isFocus is toggle
+    if toggle and @isSurround then @surround off
+    if toggle
+      @container.appendChild @pane.el
+      @pane.draggiffy()
+    else
+      @container.removeChild @pane.el
+    @isFocus = toggle
+
     
 class Pane extends EventEmitter
   cardinals: 'n ne e se s sw w nw'.split(' ')
@@ -50,15 +58,17 @@ class Pane extends EventEmitter
       y1: 0
       x2: box.width
       y2: box.height
-    
+
     @el.style.height = box.y2
     @el.style.width = box.x2
 
   draggiffy: ->
+    return if @_dragiffied
     for i, handle of @handles
       draggie = new Draggabilly handle.el
       draggie.on 'dragStart', (handle, event, pointer)->
       draggie.on 'dragMove', @onMoveHandle
+    @_dragiffied = on
 
   onMoveHandle: (drag) =>
     re = /dir\-([nsew]{1,2})/
@@ -93,6 +103,7 @@ class Pane extends EventEmitter
   draw: (@box) =>
     border.fitTo @box for dir, border of @borders
     handle.fitTo @box for dir, handle of @handles
+
 
 class Border
   constructor: (@dir)->
