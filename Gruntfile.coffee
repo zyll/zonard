@@ -16,6 +16,7 @@ module.exports = (grunt)->
           'example/image.js': 'example/image.coffee'
           'example/crop.js': 'example/crop.coffee'
           'example/resize.js': 'example/resize.coffee'
+          'example/multi_effet.js': 'example/multi_effet.coffee'
           'example/canvas/crop_canvas.js': 'example/canvas/crop_canvas.coffee'
           'example/canvas/canvas.js': 'example/canvas/canvas.coffee'
           'example/rotate.js': 'example/rotate.coffee'
