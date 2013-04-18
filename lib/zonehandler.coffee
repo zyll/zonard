@@ -1,41 +1,9 @@
 # require eventEmitter
 # require draggabilly
 
-# Add zone limiter ux and reporting capacity to an el.
-class @ZoneHandler
-  constructor: (@el)->
-    elStyle = window.getComputedStyle @el
-
-    # prepare container with an el styled copy
-    @container = document.createElement('span')
-    @container.className = 'zonehandle-container'
-    for style in 'height width height display position top left right'.split ' '
-      @container.style[style] = (elStyle[style] || @el[style])
-    @container.style.position = 'relative'
-    # add a border pane to the container
-    @pane = new Pane @el.getBoundingClientRect()
-
-    # repack element inside the container
-    parent = @el.parentNode
-    parent.replaceChild @container, @el
-    @el.style.top = 0
-    @el.style.left = 0
-    @container.appendChild @el
-
-  focus: (toggle=on)->
-    return if @isFocus is toggle
-    if toggle and @isSurround then @surround off
-    if toggle
-      @container.appendChild @pane.el
-      @pane.draggiffy()
-    else
-      @container.removeChild @pane.el
-    @isFocus = toggle
-
-    
-class Pane extends EventEmitter
+class @Zonard extends EventEmitter
   cardinals: 'n ne e se s sw w nw'.split(' ')
-  constructor: (box)->
+  constructor: ()->
     @el = document.createElement('span')
     @el.className = 'zonehandle-main'
 
@@ -53,14 +21,18 @@ class Pane extends EventEmitter
       @handles[dir] = h
       @el.appendChild h.el
 
-    @draw
-      x1: 0
-      y1: 0
-      x2: box.width
-      y2: box.height
+  workspace: (@workspace)->
+    @workspace.appendChild @el
+    @
 
-    @el.style.height = box.y2
-    @el.style.width = box.x2
+  boundsTo: (el)->
+    comp = window.getComputedStyle el
+    @box =
+      x1: parseInt comp.getPropertyValue 'left'
+      y1: parseInt comp.getPropertyValue 'top'
+      x2: parseInt(comp.getPropertyValue('width')) + parseInt(comp.getPropertyValue('left'))
+      y2: parseInt(comp.getPropertyValue('height')) + parseInt(comp.getPropertyValue('top'))
+    @
 
   draggiffy: ->
     return if @_dragiffied
@@ -68,20 +40,16 @@ class Pane extends EventEmitter
       draggie = new Draggabilly handle.el
       draggie.on 'dragStart', (handle, event, pointer)->
       draggie.on 'dragMove', @onMoveHandle
+    for i, border of @borders
+      draggie = new Draggabilly border.el
+      draggie.on 'dragStart', (border, event, pointer)->
+      draggie.on 'dragMove', @onMoveBorder
     @_dragiffied = on
+    @
 
   onMoveHandle: (drag) =>
     re = /dir\-([nsew]{1,2})/
     dir = (re.exec drag.element.className)[1]
-
-    # sync sibblings handler
-    for h in @cardinals when h isnt dir
-      com = (dir.match ///[#{h}]///)?[0]
-      if com?.length
-        if com in ['w', 'e']
-          @handles[h].el.style.left = drag.position.x + 'px'
-        if com in ['s', 'n']
-          @handles[h].el.style.top = drag.position.y + 'px'
 
     # sync bounding box positions
     for b in dir
@@ -95,20 +63,45 @@ class Pane extends EventEmitter
         @box.y2 =  drag.position.y
 
     # sync borders positions
-    border.fitTo @box for dir, border of @borders
+    border.fitTo @box for dirb, border of @borders
+    handle.fitTo @box for dirh, handle of @handles when dirh isnt dir
 
     # notice the change
     @emit 'change', @box
 
-  draw: (@box) =>
+  onMoveBorder: (drag) =>
+    re = /dir\-([nsew]{1,2})/
+    dir = (re.exec drag.element.className)[1]
+
+    # sync bounding box positions
+    for b in dir
+      if b is 'w'
+        @box.x1 = drag.position.x
+      if b is 'e'
+        @box.x2 = drag.position.x
+      if b is 'n'
+        @box.y1 = drag.position.y
+      if b is 's'
+        @box.y2 =  drag.position.y
+
+    # sync borders positions
+    border.fitTo @box for dirb, border of @borders when dirb isnt dir
+    handle.fitTo @box for dirh, handle of @handles
+
+    # notice the change
+    @emit 'change', @box
+
+  draw: (box) =>
+    @box = box if box?
     border.fitTo @box for dir, border of @borders
     handle.fitTo @box for dir, handle of @handles
+    @
 
 
 class Border
   constructor: (@dir)->
     @el = document.createElement 'span'
-    @el.className = "zonehandle-border-#{@dir}"
+    @el.className = "zonehandle-border dir-#{@dir}"
 
   fitTo: (box)->
     if @dir in ['n', 's']
@@ -135,10 +128,16 @@ class Handle
 
   fitTo: (box)->
     if @dir in ['n', 's']
-      @el.style.left = box.x2 / 2 + 'px'
+      @el.style.left = box.x1 + (box.x2 - box.x1) / 2 - 2.5 + 'px'
     if @dir in ['e', 'w']
-      @el.style.top = box.y2 / 2 + 'px'
-    if @dir in ['ne', 'e', 'se']
-      @el.style.left = box.x2 - 5 + 'px'
-    if @dir in ['se', 's', 'sw']
-      @el.style.top = box.y2 - 5 + 'px'
+      @el.style.top = box.y1 + (box.y2 - box.y1) / 2 - 2.5 + 'px'
+    for d in @dir
+      switch d
+        when 'n'
+          @el.style.top = box.y1 - 5 + 'px'
+        when 'e'
+          @el.style.left = box.x2 - 5 + 'px'
+        when 'w'
+          @el.style.left = box.x1 - 5 + 'px'
+        when 's'
+          @el.style.top = box.y2 - 5 + 'px'

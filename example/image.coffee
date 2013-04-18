@@ -1,11 +1,16 @@
 @onload = =>
-  bibi = new @ZoneHandler document.getElementById 'bibi'
-  bibi.focus on
-  page = new @ZoneHandler document.getElementById 'page'
-  page.pane.on 'change', (box)->
+  workspace = document.getElementById 'workspace'
+  page = document.getElementById 'page2'
+  pane = new Zonard
+  pane
+    .boundsTo(page)
+    .workspace(workspace)
+    .draw()
+    .draggiffy()
+
+  pane.boundsTo(page).draw().draggiffy()
+  pane.on 'change', (box)->
     console.log 'page', box
-  bibi.pane.on 'change', (box)->
-    console.log 'bibi', box
 
   select = document.getElementById 'focus'
   unselect = document.getElementById 'unfocus'
