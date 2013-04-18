@@ -3,18 +3,24 @@
 
 # initializing a zoneHandler (cf zonard)
 @onload = =>
+  workspace = document.getElementById 'workspace'
+  page = document.getElementById 'page'
+  pane = new Zonard
+  pane
+    .boundsTo(page)
+    .workspace(workspace)
+    .draw()
+    .draggiffy()
+  zone = new Rotate page
   img = document.getElementById 'page'
-  zone = new Rotate img
   cursor = document.getElementById 'cursor'
   slider = new Draggabilly cursor, containment: document.getElementById 'slider'
   slider.on 'dragMove', (handle, event, pointer)->
-    zone.transform handle.position.x
+    zone.transform pane, handle.position.x
 
 class Rotate
   constructor: (@el)->
     elStyle = window.getComputedStyle @el
-    @zh = new ZoneHandler @el
-    @zh.focus()
     @rotate = 0
     
     # settings transform target once
@@ -22,14 +28,14 @@ class Rotate
     for b in ['transform', 'webkitTransform', "MozTransform", 'msTransform', "OTransform"] when @el.style[b]?
       @_transformVP = b
 
-  transform: (deg)->
+  transform: (pane, deg)->
     deg = deg % 360
     return if @rotate is deg
     @rotate = deg
     @el.style[@_transformVP] = "rotate(#{@rotate}deg)"
     # zone redraw
     box = @el.getBoundingClientRect(@el)
-    @zh.pane.draw
+    pane.draw
       x1: box.left
       y1: box.top
       x2: box.width

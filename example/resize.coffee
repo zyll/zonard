@@ -3,20 +3,23 @@
 
 # initializing a zoneHandler (cf zonard)
 @onload = =>
-  new Resize document.getElementById 'page'
+  workspace = document.getElementById 'workspace'
+  page = document.getElementById 'page'
+  pane = new Zonard
+  pane
+    .boundsTo(page)
+    .workspace(workspace)
+    .draw()
+    .draggiffy()
+  resize = new Resize page
+  pane.on 'change', resize.draw
 
 class Resize
   constructor: (@el)->
-    elStyle = window.getComputedStyle @el
-    @zh = new ZoneHandler el
-    @zh.focus()
-
-    #listen for the events emitted by zonehandler.pane
-    @zh.pane.on('change', @draw)
 
   draw: (box)=>
-    @el.style.width = box.x2 - box.x1 + 'px'
+    @el.style.width =  box.x2 - box.x1 + 'px'
     @el.style.height = box.y2 - box.y1 + 'px'
-    #adjust the position of the content
+    # adjust the content position
     @el.style.left = box.x1 + 'px'
-    @el.style.top =  box.y1 + 'px'
+    @el.style.top = box.y1 + 'px'

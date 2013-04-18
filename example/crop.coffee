@@ -3,19 +3,25 @@
 
 # initializing a zoneHandler (cf zonard)
 @onload = =>
-  new Crop document.getElementById 'page'
+  workspace = document.getElementById 'workspace'
+  page = document.getElementById 'page'
+  crop = new Crop page
+  pane = new Zonard
+  pane
+    .boundsTo(page)
+    .workspace(workspace)
+    .draw()
+    .draggiffy()
+  pane.on 'change', crop.draw
 
 class Crop extends EventEmitter
   constructor: (@el)->
     elStyle = window.getComputedStyle @el
-    @zh = new ZoneHandler el
-    @zh.focus()
 
     # we relocate the el in a subcontainer to facilitate
     # the manipulation
     @container = document.createElement('span')
     @container.className = 'content-subcontainer'
-    @container.style.position = 'relative'
     @container.style.overflow = "hidden"
     for style in 'height width height display position top left right'.split ' '
       @container.style[style] = (elStyle[style] || @el[style])
@@ -24,9 +30,6 @@ class Crop extends EventEmitter
     parent = @el.parentNode
     parent.replaceChild @container, @el
     @container.appendChild @el
-
-    #listen for the events emitted by zonehandler.pane
-    @zh.pane.on('change', @draw)
 
   draw: (box)=>
     # adjust the size of the content

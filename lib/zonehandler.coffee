@@ -27,11 +27,13 @@ class @Zonard extends EventEmitter
 
   boundsTo: (el)->
     comp = window.getComputedStyle el
+    left = (parseInt comp.getPropertyValue 'left') || 0
+    top = (parseInt comp.getPropertyValue 'top') || 0
     @box =
-      x1: parseInt comp.getPropertyValue 'left'
-      y1: parseInt comp.getPropertyValue 'top'
-      x2: parseInt(comp.getPropertyValue('width')) + parseInt(comp.getPropertyValue('left'))
-      y2: parseInt(comp.getPropertyValue('height')) + parseInt(comp.getPropertyValue('top'))
+      x1: left
+      y1: top
+      x2: parseInt(comp.getPropertyValue 'width') + left
+      y2: parseInt(comp.getPropertyValue 'height') + top
     @
 
   draggiffy: ->
